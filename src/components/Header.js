@@ -26,7 +26,9 @@ const Header = () => {
   }, []);
 
   const changeLanguage = (e) => {
-    i18n.changeLanguage(e.target.value);
+    const newLanguage = e.target.value;
+    i18n.changeLanguage(newLanguage);
+    localStorage.setItem('i18nextLng', newLanguage); // Save the selected language
     setIsOpen(false);
   };
 
@@ -52,7 +54,10 @@ const Header = () => {
           {["home", "about", "services", "projects", "news", "contact"].map(
             (item) => (
               <li key={item}>
-                <Link to={`/${item}`} onClick={() => setIsOpen(false)}>
+                <Link
+                  to={item === "home" ? "/" : `/${item}`} // Adjusted for home routing
+                  onClick={() => setIsOpen(false)}
+                >
                   {t(item)}
                 </Link>
               </li>
@@ -61,14 +66,22 @@ const Header = () => {
 
           {/* Admin Link */}
           <li>
-            <Link to="/admin/login" className="admin-link" onClick={() => setIsOpen(false)}>
+            <Link
+              to="/admin/login"
+              className="admin-link"
+              onClick={() => setIsOpen(false)}
+            >
               {t("admin")}
             </Link>
           </li>
 
           {/* Language Switcher */}
           <li>
-            <select className="lang-select" onChange={changeLanguage} value={i18n.language}>
+            <select
+              className="lang-select"
+              onChange={changeLanguage}
+              value={i18n.language}
+            >
               <option value="en">English</option>
               <option value="sw">Swahili</option>
             </select>

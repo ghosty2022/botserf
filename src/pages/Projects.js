@@ -5,114 +5,124 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { ClipLoader } from 'react-spinners';
 import { useTranslation } from 'react-i18next';
-import { FaShareAlt, FaEye, FaEnvelope, FaFilter, FaLeaf, FaWater, FaHandsHelping, FaTree, FaTimes, FaCloud } from 'react-icons/fa'; // Added FaCloud
+import { FaShareAlt, FaEye, FaEnvelope, FaFilter, FaLeaf, FaWater, FaHandsHelping, FaTree, FaCloud, FaTimes } from 'react-icons/fa';
 import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
 import { useInView } from 'react-intersection-observer';
 import emailjs from '@emailjs/browser';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 const ProjectsSection = styled.section`
-  padding: 2rem;
-  background: linear-gradient(135deg, #f4f7fa 0%, #e8eef5 100%);
-  overflow: hidden;
+  padding: 3rem 1rem;
+  background: linear-gradient(135deg, #e9f1f9 0%, #f7fafc 100%);
+  min-height: 100vh;
 `;
 
 const ProjectsContainer = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  padding: 0 1rem;
 `;
 
-const Hero = styled.div`
-  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://via.placeholder.com/1400x300?text=Botserf+Projects') center/cover no-repeat;
+const Hero = styled(motion.div)`
+  background: linear-gradient(145deg, rgba(44, 110, 156, 0.9), rgba(26, 60, 94, 0.9)), url('https://via.placeholder.com/1400x300?text=Botserf+Projects') center/cover no-repeat;
   color: #fff;
-  padding: 4rem 2rem;
-  border-radius: 20px;
+  padding: 5rem 2rem;
+  border-radius: 30px;
   text-align: center;
-  margin-bottom: 3rem;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  margin-bottom: 4rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   @media (max-width: 768px) {
     padding: 3rem 1rem;
+    border-radius: 20px;
   }
 `;
 
 const HeroTitle = styled.h1`
-  font-size: 2.5rem;
+  font-size: 3rem;
+  font-weight: 700;
   margin: 0 0 1rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
   @media (max-width: 768px) {
     font-size: 2rem;
   }
 `;
 
 const HeroSubtitle = styled.p`
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 300;
   margin: 0;
+  opacity: 0.9;
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const FilterSection = styled.div`
-  margin: 2rem 0;
+  margin: 3rem 0;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 `;
 
 const FilterButton = styled.button`
-  background: ${props => (props.active ? '#2c6e9c' : '#fff')};
+  background: ${props => (props.active ? '#2c6e9c' : '#ffffff')};
   color: ${props => (props.active ? '#fff' : '#2c6e9c')};
-  padding: 0.75rem 1.5rem;
+  padding: 0.8rem 1.8rem;
   border: 2px solid #2c6e9c;
-  border-radius: 25px;
-  margin: 0 0.5rem;
+  border-radius: 30px;
   cursor: pointer;
+  font-weight: 500;
   transition: all 0.3s ease;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   &:hover {
     background: #2c6e9c;
     color: #fff;
+    transform: translateY(-2px);
   }
 `;
 
 const ProjectGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 3rem 0;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2.5rem;
+  margin: 4rem 0;
 `;
 
-const ProjectCard = styled.div`
+const ProjectCard = styled(motion.div)`
   background: #fff;
   padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  opacity: 0;
-  transform: translateY(20px);
-  &.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
   }
 `;
 
 const ProjectIcon = styled.div`
-  font-size: 2.5rem;
+  font-size: 3rem;
   color: #2c6e9c;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const ProjectTitle = styled.h3`
   color: #1a3c5e;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 600;
   margin-bottom: 1rem;
 `;
 
 const ProjectDescription = styled.p`
-  color: #333;
+  color: #444;
   font-size: 1.1rem;
-  line-height: 1.6;
+  line-height: 1.7;
 `;
 
 const CTAButtons = styled.div`
@@ -123,120 +133,141 @@ const CTAButtons = styled.div`
 `;
 
 const CTAButton = styled.button`
-  background: #2c6e9c;
+  background: linear-gradient(90deg, #2c6e9c, #1a3c5e);
   color: #fff;
-  padding: 0.75rem 1.5rem;
+  padding: 0.8rem 1.8rem;
   border: none;
   border-radius: 25px;
   cursor: pointer;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background 0.3s ease;
+  transition: all 0.3s ease;
   &:hover {
-    background: #1a3c5e;
+    background: linear-gradient(90deg, #1a3c5e, #2c6e9c);
+    transform: scale(1.05);
   }
 `;
 
-const Modal = styled.div`
-  display: ${props => (props.isOpen ? 'block' : 'none')};
+const Modal = styled(motion.div)`
+  display: ${props => (props.isOpen ? 'flex' : 'none')};
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   z-index: 1000;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ModalContent = styled.div`
   background: #fff;
-  padding: 2rem;
-  border-radius: 15px;
-  max-width: 600px;
-  margin: 5% auto;
+  padding: 2.5rem;
+  border-radius: 25px;
+  max-width: 700px;
+  width: 90%;
   position: relative;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  animation: slideIn 0.3s ease;
-  @keyframes slideIn {
-    from { transform: translateY(-50px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   @media (max-width: 768px) {
-    margin: 10% 1rem;
+    padding: 1.5rem;
+    margin: 1rem;
   }
 `;
 
 const ModalClose = styled.button`
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.5rem;
+  right: 1.5rem;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: #1a3c5e;
   cursor: pointer;
+  transition: color 0.3s ease;
+  &:hover {
+    color: #2c6e9c;
+  }
 `;
 
 const ModalTitle = styled.h2`
   color: #1a3c5e;
-  margin-bottom: 1rem;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
 `;
 
 const ModalText = styled.p`
   color: #333;
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1.2rem;
+  line-height: 1.8;
 `;
 
 const QuoteForm = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  margin-top: 2rem;
 `;
 
 const QuoteInput = styled.input`
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
   font-size: 1rem;
+  transition: border-color 0.3s ease;
+  &:focus {
+    border-color: #2c6e9c;
+    outline: none;
+  }
 `;
 
 const QuoteTextarea = styled.textarea`
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
   font-size: 1rem;
   resize: vertical;
+  min-height: 120px;
+  transition: border-color 0.3s ease;
+  &:focus {
+    border-color: #2c6e9c;
+    outline: none;
+  }
 `;
 
 const QuoteSubmit = styled.button`
   background: #2c6e9c;
   color: #fff;
-  padding: 0.75rem;
+  padding: 1rem 2rem;
   border: none;
-  border-radius: 25px;
+  border-radius: 30px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  font-weight: 500;
+  transition: all 0.3s ease;
   &:hover {
     background: #1a3c5e;
+    transform: scale(1.05);
   }
 `;
 
-const ChartSection = styled.div`
-  margin: 3rem auto;
-  max-width: 1200px;
+const ChartSection = styled(motion.div)`
+  margin: 4rem auto;
+  max-width: 800px;
   background: #fff;
-  padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   text-align: center;
 `;
 
 const ChartTitle = styled.h2`
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: #2c6e9c;
-  margin-bottom: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
 `;
 
 const Projects = () => {
@@ -248,56 +279,50 @@ const Projects = () => {
   const [quoteForm, setQuoteForm] = useState({ name: '', email: '', message: '' });
   const { t } = useTranslation();
   const [refCards, inViewCards] = useInView({ threshold: 0.2 });
+  const [refChart, inViewChart] = useInView({ threshold: 0.2 });
 
   useEffect(() => {
     const fetchProjects = async () => {
-      const querySnapshot = await getDocs(collection(db, 'projects'));
-      const projectsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        details: doc.data().details || `Discover more about ${doc.data().title}, a flagship project by Botserf PTY LTD driving sustainability and innovation.`
-      }));
-      setProjects(projectsData);
-      setLoading(false);
+      try {
+        const querySnapshot = await getDocs(collection(db, 'projects'));
+        const projectsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          details: doc.data().details || t('defaultProjectDetails', { title: doc.data().title })
+        }));
+        setProjects(projectsData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching projects:', error.message);
+        toast.error('Failed to load projects.');
+        setLoading(false);
+      }
     };
     fetchProjects();
-  }, []);
+  }, [t]);
 
   const handleShare = (title) => {
     navigator.share({ title, url: window.location.href });
   };
 
-  const openModal = (project) => {
-    setModalProject(project);
-  };
-
-  const closeModal = () => {
-    setModalProject(null);
-  };
+  const openModal = (project) => setModalProject(project);
+  const closeModal = () => setModalProject(null);
 
   const openQuoteModal = (project) => {
     setQuoteModal(project);
-    setQuoteForm({ name: '', email: '', message: `Requesting a quote for ${project.title}` });
+    setQuoteForm({ name: '', email: '', message: t('quoteRequestMessage', { title: project.title }) });
   };
+  const closeQuoteModal = () => setQuoteModal(null);
 
-  const closeQuoteModal = () => {
-    setQuoteModal(null);
-  };
-
-  const handleQuoteChange = (e) => {
-    setQuoteForm({ ...quoteForm, [e.target.name]: e.target.value });
-  };
+  const handleQuoteChange = (e) => setQuoteForm({ ...quoteForm, [e.target.name]: e.target.value });
 
   const handleQuoteSubmit = (e) => {
     e.preventDefault();
     emailjs.send(
-      'service_837qny9', // Your EmailJS Service ID
-      'template_uyhg5ji', // Your EmailJS Template ID
-      {
-        ...quoteForm,
-        project: quoteModal?.title,
-      },
-      'KILfxATttD-0u9tss' // Your EmailJS Public Key
+      'service_837qny9',
+      'template_uyhg5ji',
+      { ...quoteForm, project: quoteModal?.title },
+      'KILfxATttD-0u9tss'
     )
       .then(() => {
         toast.success(t('messageSent'));
@@ -311,14 +336,11 @@ const Projects = () => {
   const chartData = projects.reduce((acc, project) => {
     const category = project.category || 'Other';
     const existing = acc.find(item => item.name === category);
-    if (existing) {
-      existing.value += 1;
-    } else {
-      acc.push({ name: category, value: 1 });
-    }
+    if (existing) existing.value += 1;
+    else acc.push({ name: category, value: 1 });
     return acc;
   }, []);
-  const COLORS = ['#2c6e9c', '#ffd700', '#1a3c5e', '#ffcc00', '#88d8b0'];
+  const COLORS = ['#2c6e9c', '#ffd700', '#1a3c5e', '#88d8b0', '#ffcc00'];
 
   const projectIcons = {
     "Agriculture": <FaLeaf />,
@@ -331,96 +353,86 @@ const Projects = () => {
   return (
     <ProjectsSection>
       <Helmet>
-        <title>Projects - Botserf PTY LTD</title>
-        <meta name="description" content="Explore our impactful projects." />
+        <title>{t('projectsTitle')}</title>
+        <meta name="description" content={t('projectsDescription')} />
       </Helmet>
 
       <ProjectsContainer>
-        <Hero>
+        <Hero initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }}>
           <HeroTitle>{t('projects')}</HeroTitle>
-          <HeroSubtitle>Transforming communities through sustainable innovation.</HeroSubtitle>
+          <HeroSubtitle>{t('projectsSubtitle')}</HeroSubtitle>
         </Hero>
 
         <FilterSection>
-          <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}><FaFilter /> All</FilterButton>
-          <FilterButton active={filter === 'Agriculture'} onClick={() => setFilter('Agriculture')}><FaLeaf /> Agriculture</FilterButton>
-          <FilterButton active={filter === 'Climate'} onClick={() => setFilter('Climate')}><FaCloud /> Climate</FilterButton>
-          <FilterButton active={filter === 'Health'} onClick={() => setFilter('Health')}><FaHandsHelping /> Health</FilterButton>
-          <FilterButton active={filter === 'Ecology'} onClick={() => setFilter('Ecology')}><FaTree /> Ecology</FilterButton>
+          <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}><FaFilter /> {t('all')}</FilterButton>
+          <FilterButton active={filter === 'Agriculture'} onClick={() => setFilter('Agriculture')}><FaLeaf /> {t('agriculture')}</FilterButton>
+          <FilterButton active={filter === 'Climate'} onClick={() => setFilter('Climate')}><FaCloud /> {t('climate')}</FilterButton>
+          <FilterButton active={filter === 'Health'} onClick={() => setFilter('Health')}><FaHandsHelping /> {t('health')}</FilterButton>
+          <FilterButton active={filter === 'Ecology'} onClick={() => setFilter('Ecology')}><FaTree /> {t('ecology')}</FilterButton>
         </FilterSection>
 
         {loading ? (
-          <ClipLoader color="#2c6e9c" loading={loading} size={50} style={{ display: 'block', margin: '0 auto' }} />
+          <ClipLoader color="#2c6e9c" loading={loading} size={60} style={{ display: 'block', margin: '4rem auto' }} />
         ) : (
           <>
             <ProjectGrid ref={refCards}>
-              {filteredProjects.map(project => (
-                <ProjectCard key={project.id} className={inViewCards ? 'visible' : ''}>
+              {filteredProjects.map((project, index) => (
+                <ProjectCard
+                  key={project.id}
+                  className={inViewCards ? 'visible' : ''}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={inViewCards ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
                   <ProjectIcon>{projectIcons[project.category] || <FaLeaf />}</ProjectIcon>
                   <ProjectTitle>{project.title}</ProjectTitle>
                   <ProjectDescription>{project.description}</ProjectDescription>
-                  <img src={project.image} alt={project.title} style={{ maxWidth: '100%', borderRadius: '10px', marginTop: '1rem' }} />
+                  <img src={project.image} alt={project.title} style={{ maxWidth: '100%', borderRadius: '12px', marginTop: '1.5rem' }} />
                   <CTAButtons>
-                    <CTAButton onClick={() => openModal(project)}><FaEye /> View More</CTAButton>
-                    <CTAButton onClick={() => handleShare(project.title)}><FaShareAlt /> Share</CTAButton>
-                    <CTAButton onClick={() => openQuoteModal(project)}><FaEnvelope /> Get a Quote</CTAButton>
+                    <CTAButton onClick={() => openModal(project)}><FaEye /> {t('viewMore')}</CTAButton>
+                    <CTAButton onClick={() => handleShare(project.title)}><FaShareAlt /> {t('share')}</CTAButton>
+                    <CTAButton onClick={() => openQuoteModal(project)}><FaEnvelope /> {t('getQuote')}</CTAButton>
                   </CTAButtons>
                 </ProjectCard>
               ))}
             </ProjectGrid>
 
-            <Modal isOpen={!!modalProject} onClick={closeModal}>
+            <Modal isOpen={!!modalProject} onClick={closeModal} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {modalProject && (
                 <ModalContent onClick={e => e.stopPropagation()}>
                   <ModalClose onClick={closeModal}><FaTimes /></ModalClose>
                   <ModalTitle>{modalProject.title}</ModalTitle>
                   <ProjectIcon>{projectIcons[modalProject.category] || <FaLeaf />}</ProjectIcon>
                   <ModalText>{modalProject.details}</ModalText>
-                  <img src={modalProject.image} alt={modalProject.title} style={{ maxWidth: '100%', borderRadius: '10px', marginTop: '1rem' }} />
+                  <img src={modalProject.image} alt={modalProject.title} style={{ maxWidth: '100%', borderRadius: '12px', marginTop: '1.5rem' }} />
                 </ModalContent>
               )}
             </Modal>
 
-            <Modal isOpen={!!quoteModal} onClick={closeQuoteModal}>
+            <Modal isOpen={!!quoteModal} onClick={closeQuoteModal} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {quoteModal && (
                 <ModalContent onClick={e => e.stopPropagation()}>
                   <ModalClose onClick={closeQuoteModal}><FaTimes /></ModalClose>
-                  <ModalTitle>Get a Quote for {quoteModal.title}</ModalTitle>
+                  <ModalTitle>{t('getQuoteFor', { title: quoteModal.title })}</ModalTitle>
                   <QuoteForm onSubmit={handleQuoteSubmit}>
-                    <QuoteInput
-                      type="text"
-                      name="name"
-                      placeholder={t('name')}
-                      value={quoteForm.name}
-                      onChange={handleQuoteChange}
-                      required
-                    />
-                    <QuoteInput
-                      type="email"
-                      name="email"
-                      placeholder={t('email')}
-                      value={quoteForm.email}
-                      onChange={handleQuoteChange}
-                      required
-                    />
-                    <QuoteTextarea
-                      name="message"
-                      placeholder={t('message')}
-                      value={quoteForm.message}
-                      onChange={handleQuoteChange}
-                      rows="4"
-                      required
-                    />
-                    <QuoteSubmit type="submit">Submit Quote Request</QuoteSubmit>
+                    <QuoteInput type="text" name="name" placeholder={t('name')} value={quoteForm.name} onChange={handleQuoteChange} required />
+                    <QuoteInput type="email" name="email" placeholder={t('email')} value={quoteForm.email} onChange={handleQuoteChange} required />
+                    <QuoteTextarea name="message" placeholder={t('message')} value={quoteForm.message} onChange={handleQuoteChange} required />
+                    <QuoteSubmit type="submit">{t('submitQuoteRequest')}</QuoteSubmit>
                   </QuoteForm>
                 </ModalContent>
               )}
             </Modal>
 
-            <ChartSection>
-              <ChartTitle>Project Categories</ChartTitle>
-              <PieChart width={500} height={400} style={{ margin: '0 auto' }}>
-                <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={150} fill="#8884d8" label>
+            <ChartSection
+              ref={refChart}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={inViewChart ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.8 }}
+            >
+              <ChartTitle>{t('projectCategories')}</ChartTitle>
+              <PieChart width={Math.min(500, window.innerWidth - 40)} height={400}>
+                <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} fill="#8884d8" label>
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}

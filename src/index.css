@@ -1,3 +1,11 @@
+/* Global reset for consistent rendering across browsers */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure the body respects screen widths and has proper font settings */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,9 +13,55 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrollbars */
+  font-size: 16px; /* Base font size for scaling */
+  line-height: 1.6; /* Improve readability */
 }
 
+/* Adjust font size for smaller screens */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 12px;
+  }
+}
+
+/* Ensure code blocks use the specified font and are readable */
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+  font-size: 0.9em; /* Slightly smaller for code blocks */
+  line-height: 1.5; /* Improve readability */
+}
+
+/* Ensure images and media scale properly */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Improve touch responsiveness for links and buttons */
+a, button {
+  touch-action: manipulation;
+}
+
+/* Utility class for centered containers */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
+/* Ensure smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
 }

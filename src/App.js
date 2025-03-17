@@ -14,6 +14,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import PrivateRoute from './components/PrivateRoute';
 import './styles/App.css';
 import './i18n/i18n';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
       <div style={{ minHeight: 'calc(100vh - 150px)' }}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} /> {/* Added to support /home */}
           <Route path="/about" element={<About />} />
           <Route path="/services" element={<Services />} />
           <Route path="/projects" element={<Projects />} />
@@ -30,6 +32,7 @@ function App() {
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
         </Routes>
+        <ToastContainer position="top-right" autoClose={5000} />
       </div>
       <Footer />
       <ToastContainer />
